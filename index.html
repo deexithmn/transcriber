@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Powered Productivity Timer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #f0f8ff;
+    }
+    #app {
+      text-align: center;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    h1 {
+      color: #333;
+    }
+    .timer {
+      font-size: 3em;
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #task-list {
+      margin-top: 20px;
+    }
+    #task-input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    #quote {
+      margin-top: 20px;
+      font-style: italic;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>AI-Powered Productivity Timer</h1>
+    <div class="timer" id="timer">25:00</div>
+    <button onclick="startTimer()">Start</button>
+    <button onclick="pauseTimer()">Pause</button>
+    <button onclick="resetTimer()">Reset</button>
+    <input type="text" id="task-input" placeholder="Enter a task" />
+    <button onclick="addTask()">Add Task</button>
+    <div id="task-list"></div>
+    <div id="quote">"Stay motivated!"</div>
+  </div>
+
+  <script>
+    let countdown;
+    let timeLeft = 25 * 60;
+    const timerDisplay = document.getElementById('timer');
+    const quoteDisplay = document.getElementById('quote');
+
+    function displayTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const remainderSeconds = seconds % 60;
+      timerDisplay.textContent = `${minutes}:${remainderSeconds < 10 ? '0' : ''}${remainderSeconds}`;
+    }
+
+    function startTimer() {
+      clearInterval(countdown);
+      countdown = setInterval(() => {
+        timeLeft--;
+        displayTime(timeLeft);
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          fetchMotivationalQuote();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(countdown);
+    }
+
+    function resetTimer() {
+      clearInterval(countdown);
+      timeLeft = 25 * 60;
+      displayTime(timeLeft);
+    }
+
+    function addTask() {
+      const taskInput = document.getElementById('task-input');
+      const taskList = document.getElementById('task-list');
+      if (taskInput.value.trim() !== '') {
+        const taskItem = document.createElement('div');
+        taskItem.textContent = taskInput.value;
+        taskList.appendChild(taskItem);
+        taskInput.value = '';
+      }
+    }
+
+    function fetchMotivationalQuote() {
+      quoteDisplay.textContent = "Loading a motivational quote...";
+      // Simulate AI API call for quotes
+      setTimeout(() => {
+        const quotes = [
+          "Keep pushing forward!",
+          "You are capable of amazing things!",
+          "Stay focused, stay strong!",
+          "Believe in yourself!"
+        ];
+        quoteDisplay.textContent = quotes[Math.floor(Math.random() * quotes.length)];
+      }, 1000);
+    }
+
+    // Initialize the timer display
+    displayTime(timeLeft);
+  </script>
+</body>
+</html>
