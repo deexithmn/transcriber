@@ -1,123 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transcriber App</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #f0f8ff;
-    }
-    #app {
-      text-align: center;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
-      width: 100%;
-    }
-    h1 {
-      color: #333;
-    }
-    input, button {
-      padding: 10px;
-      margin: 5px;
-      width: 80%;
-      font-size: 1em;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-  </style>
-</head>
-<body>
-  <div id="app">
-    <h1>Transcriber Login</h1>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <div id="message"></div>
+---
+layout: default
+title: HIPAA Audio Processor
+---
 
-    <div id="upload-section" style="display:none;">
-      <h2>Upload Audio</h2>
-      <input type="file" id="audio-file" accept="audio/*">
-      <button onclick="processAudio()">Upload and Process</button>
-      <div id="output"></div>
-    </div>
+# HIPAA-Compliant Audio Processor
+
+<div class="container">
+  <div class="upload-section">
+    <h2>Upload Audio File</h2>
+    <input type="file" id="audioFile" accept="audio/*" class="file-input">
+    <button onclick="processAudio()" class="process-btn">Process Audio</button>
   </div>
+  
+  <div class="results-section" id="results">
+    <!-- Results will be displayed here -->
+  </div>
+</div>
 
-  <script>
-    const adminUsername = "admin";
-    const adminPassword = "password";
+<script>
+async function processAudio() {
+  const fileInput = document.getElementById('audioFile');
+  const resultsDiv = document.getElementById('results');
+  
+  if (!fileInput.files.length) {
+    alert('Please select an audio file');
+    return;
+  }
+  
+  const file = fileInput.files[0];
+  resultsDiv.innerHTML = '<p>Processing audio... Please wait.</p>';
+  
+  try {
+    // Here you would normally send the file to your API
+    // For demo purposes, we'll just show a mock result
+    setTimeout(() => {
+      resultsDiv.innerHTML = `
+        <h3>Processed Results:</h3>
+        <pre>
+File processed successfully
+Extracted Fields:
+- Patient Name: [ENCRYPTED]
+- Policy Number: [ENCRYPTED]
+- DOB: [ENCRYPTED]
+        </pre>
+      `;
+    }, 2000);
+  } catch (error) {
+    resultsDiv.innerHTML = `<p class="error">Error processing file: ${error.message}</p>`;
+  }
+}
+</script>
 
-    function login() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      const message = document.getElementById('message');
+<style>
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
-      if (username === adminUsername && password === adminPassword) {
-        message.textContent = "Login successful!";
-        message.style.color = "green";
-        document.getElementById('upload-section').style.display = 'block';
-      } else {
-        message.textContent = "Invalid username or password.";
-        message.style.color = "red";
-      }
-    }
+.upload-section {
+  margin: 20px 0;
+  padding: 20px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  text-align: center;
+}
 
-    async function processAudio() {
-      const audioFile = document.getElementById('audio-file').files[0];
-      const output = document.getElementById('output');
+.file-input {
+  margin: 10px 0;
+}
 
-      if (!audioFile) {
-        output.textContent = "Please upload an audio file.";
-        output.style.color = "red";
-        return;
-      }
+.process-btn {
+  background: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
-      output.textContent = "Processing audio in real-time...";
+.process-btn:hover {
+  background: #0056b3;
+}
 
-      try {
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'en-US';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        recognition.onresult = (event) => {
-          const transcript = event.results[0][0].transcript;
-          output.textContent = `Transcription: ${transcript}`;
-        };
-
-        recognition.onerror = (event) => {
-          output.textContent = `Error in transcription: ${event.error}`;
-          output.style.color = "red";
-        };
-
-        const fileReader = new FileReader();
-        fileReader.onload = function (e) {
-          recognition.start();
-        };
-        fileReader.readAsArrayBuffer(audioFile);
-      } catch (error) {
-        output.textContent = "Error processing audio: " + error.message;
-        output.style.color = "red";
-      }
-    }
-  </script>
-</body>
-</html>
+.error {
+  color: red;
+}
+</style>
