@@ -1,0 +1,12 @@
+title: HIPAA Audio Processor
+baseurl: "/your-repo-name"
+url: "https://your-username.github.io"
+
+# Build settings
+markdown: kramdown
+exclude:
+  - Dockerfile
+  - docker-compose.yml
+  - requirements.txt
+  - secure_processing/
+  - README.md
