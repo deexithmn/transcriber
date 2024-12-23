@@ -3,23 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI-Powered Productivity Timer</title>
+  <title>Transcriber App</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
       display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       height: 100vh;
       background: #f0f8ff;
     }
     #app {
       text-align: center;
-      padding: 20px;
       background: white;
+      padding: 20px;
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       max-width: 400px;
@@ -28,114 +27,92 @@
     h1 {
       color: #333;
     }
-    .timer {
-      font-size: 3em;
-      margin: 20px 0;
-    }
-    button {
-      padding: 10px 20px;
-      margin: 5px;
-      font-size: 1em;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      background-color: #007bff;
-      color: white;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    #task-list {
-      margin-top: 20px;
-    }
-    #task-input {
-      width: 100%;
+    input, button {
       padding: 10px;
-      margin: 10px 0;
+      margin: 5px;
+      width: 80%;
+      font-size: 1em;
       border: 1px solid #ccc;
       border-radius: 5px;
     }
-    #quote {
-      margin-top: 20px;
-      font-style: italic;
-      color: #555;
+    button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
   <div id="app">
-    <h1>AI-Powered Productivity Timer</h1>
-    <div class="timer" id="timer">25:00</div>
-    <button onclick="startTimer()">Start</button>
-    <button onclick="pauseTimer()">Pause</button>
-    <button onclick="resetTimer()">Reset</button>
-    <input type="text" id="task-input" placeholder="Enter a task" />
-    <button onclick="addTask()">Add Task</button>
-    <div id="task-list"></div>
-    <div id="quote">"Stay motivated!"</div>
+    <h1>Transcriber Login</h1>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <div id="message"></div>
+
+    <div id="upload-section" style="display:none;">
+      <h2>Upload Audio</h2>
+      <input type="file" id="audio-file" accept="audio/*">
+      <button onclick="processAudio()">Upload and Process</button>
+      <div id="output"></div>
+    </div>
   </div>
 
   <script>
-    let countdown;
-    let timeLeft = 25 * 60;
-    const timerDisplay = document.getElementById('timer');
-    const quoteDisplay = document.getElementById('quote');
+    const adminUsername = "admin";
+    const adminPassword = "password";
 
-    function displayTime(seconds) {
-      const minutes = Math.floor(seconds / 60);
-      const remainderSeconds = seconds % 60;
-      timerDisplay.textContent = `${minutes}:${remainderSeconds < 10 ? '0' : ''}${remainderSeconds}`;
-    }
+    function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const message = document.getElementById('message');
 
-    function startTimer() {
-      clearInterval(countdown);
-      countdown = setInterval(() => {
-        timeLeft--;
-        displayTime(timeLeft);
-        if (timeLeft <= 0) {
-          clearInterval(countdown);
-          fetchMotivationalQuote();
-        }
-      }, 1000);
-    }
-
-    function pauseTimer() {
-      clearInterval(countdown);
-    }
-
-    function resetTimer() {
-      clearInterval(countdown);
-      timeLeft = 25 * 60;
-      displayTime(timeLeft);
-    }
-
-    function addTask() {
-      const taskInput = document.getElementById('task-input');
-      const taskList = document.getElementById('task-list');
-      if (taskInput.value.trim() !== '') {
-        const taskItem = document.createElement('div');
-        taskItem.textContent = taskInput.value;
-        taskList.appendChild(taskItem);
-        taskInput.value = '';
+      if (username === adminUsername && password === adminPassword) {
+        message.textContent = "Login successful!";
+        message.style.color = "green";
+        document.getElementById('upload-section').style.display = 'block';
+      } else {
+        message.textContent = "Invalid username or password.";
+        message.style.color = "red";
       }
     }
 
-    function fetchMotivationalQuote() {
-      quoteDisplay.textContent = "Loading a motivational quote...";
-      // Simulate AI API call for quotes
-      setTimeout(() => {
-        const quotes = [
-          "Keep pushing forward!",
-          "You are capable of amazing things!",
-          "Stay focused, stay strong!",
-          "Believe in yourself!"
-        ];
-        quoteDisplay.textContent = quotes[Math.floor(Math.random() * quotes.length)];
-      }, 1000);
-    }
+    async function processAudio() {
+      const audioFile = document.getElementById('audio-file').files[0];
+      const output = document.getElementById('output');
 
-    // Initialize the timer display
-    displayTime(timeLeft);
+      if (!audioFile) {
+        output.textContent = "Please upload an audio file.";
+        output.style.color = "red";
+        return;
+      }
+
+      output.textContent = "Processing audio...";
+
+      try {
+        const formData = new FormData();
+        formData.append('audio', audioFile);
+
+        const response = await fetch('http://localhost:5000/transcribe', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          output.innerHTML = `<h3>Extracted Text</h3><pre>${result.transcription}</pre>`;
+        } else {
+          output.textContent = "Error processing audio.";
+          output.style.color = "red";
+        }
+      } catch (error) {
+        output.textContent = "Error connecting to the server.";
+        output.style.color = "red";
+      }
+    }
   </script>
 </body>
 </html>
