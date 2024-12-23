@@ -90,26 +90,31 @@
         return;
       }
 
-      output.textContent = "Processing audio...";
+      output.textContent = "Processing audio in real-time...";
 
       try {
-        const formData = new FormData();
-        formData.append('audio', audioFile);
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
 
-        const response = await fetch('http://localhost:5000/transcribe', {
-          method: 'POST',
-          body: formData,
-        });
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          output.textContent = `Transcription: ${transcript}`;
+        };
 
-        if (response.ok) {
-          const result = await response.json();
-          output.innerHTML = `<h3>Extracted Text</h3><pre>${result.transcription}</pre>`;
-        } else {
-          output.textContent = "Error processing audio.";
+        recognition.onerror = (event) => {
+          output.textContent = `Error in transcription: ${event.error}`;
           output.style.color = "red";
-        }
+        };
+
+        const fileReader = new FileReader();
+        fileReader.onload = function (e) {
+          recognition.start();
+        };
+        fileReader.readAsArrayBuffer(audioFile);
       } catch (error) {
-        output.textContent = "Error connecting to the server.";
+        output.textContent = "Error processing audio: " + error.message;
         output.style.color = "red";
       }
     }
